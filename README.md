@@ -25,4 +25,3 @@ En Linuz la vida es más sencilla por que no hay windows con que complicarse, pe
 2. Ejecutar con sudo `config.sh`  
 La descarga y verificación de archivos comenzará se descargará las cosas que no se tengan y se establecerán las mismas variables de entorno para poder trabajar con cmake en c++
 4. Si usas linux se supone que ya sabrás compilar con cmake, sino, es buen momento para aprender
-# antlr4-config
