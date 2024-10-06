@@ -8,6 +8,11 @@ RESET="\e[0m"
 X="✘"
 CHECK="✔"
 
+function update(){
+    sudo apt-get update -y
+    sudo apt-get install build-essential libssl-dev -y
+}
+
 function ejecutar_comando() {
     local comando=$1
     local SALIDA_TEMP=$(mktemp)
@@ -38,8 +43,16 @@ function descargar_e_instalar_manual(){
 
     echo -e "${AMARILLO}[*] Instalando $nombre...${RESET}"
     chmod +x "/tmp/$archivo"
-    sudo /tmp/"$archivo"
+    sudo /tmp/"$archivo" --prefix=/opt/cmake
+    sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
     
+    # add to path
+    if [[ -n "$BASH_VERSION" ]]; then
+        echo 'export PATH=$PATH:/opt/cmake/bin' >> ~/.bashrc
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        echo 'export PATH=$PATH:/opt/cmake/bin' >> ~/.zshrc
+    fi
+        
     if [ $? -ne 0 ]; then
         echo -e "${ROJO}${X} Error al instalar $nombre.${RESET}"
         return 1
@@ -68,16 +81,16 @@ function comprobar_dependencias(){
             echo " - $paquete"
         done
 
-        read -p "Desea instalarlos [S/n]?" op
+        read -p "Desea instalarlos [S/n]? " op
         if [ "$op" == "S" ]; then
             SALIDA_TEMP=$(mktemp)
             ERROR_TEMP=$(mktemp)
 
-            echo "$AMARILLO[*] Instalando paquetes...$RESET"
+            echo "${AMARILLO}[*] Instalando paquetes...${RESET}"
             ejecutar_comando "sudo apt-get update"
 
             for paquete in "${no_instalados[@]}"; do
-                echo -e "$AMARILLO[*] Instalando $paquete...$RESET"
+                echo -e "${AMARILLO}[*] Instalando $paquete...${RESET}"
 
                 case $paquete in 
                     "cmake")
@@ -133,7 +146,7 @@ function instalar_antlrRuntime(){
     fi
 
     cd $antlrPath
-    mkdir build && cd build
+    sudo mkdir build && cd build
     cmake .. && make
 
     export ANTLRRUNTIMEH="$antlrPath/runtime/src"
@@ -146,5 +159,6 @@ function instalar_antlrRuntime(){
     source ~/.bashrc
 }
 
+update
 comprobar_dependencias
 instalar_antlrRuntime
